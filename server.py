@@ -16,20 +16,27 @@ db.init_app(app)
 def recommend(id):
     restaurants = recommend_restaurants(id)
     result = { }
-    result['user'] = {
-            'id': id,
-            'name': db.session.query(User.name).filter(User.user_id == id).scalar()
-        }
 
+    ### User ###
+    result['user'] = {
+        'id': id,
+        'name': db.session.query(User.name).filter(User.user_id == id).scalar()
+    }
+
+    ### Resturant ###
     result['restaurants'] = {
-        'count': len(restaurants.tolist()),
+        'count': restaurants.size,
         'list': []
     }
     for restaurant_id in restaurants.tolist():
+        row = db.session.query(Business) \
+               .filter(Business.business_id == restaurant_id) \
+               .with_entities(Business.longitude, Business.latitude) \
+               .first()
         result['restaurants']['list'].append({
             'id': restaurant_id,
-            'longitude': db.session.query(Business.longitude).filter(Business.business_id == restaurant_id).scalar(),
-            'latitude': db.session.query(Business.latitude).filter(Business.business_id == restaurant_id).scalar()
+            'longitude': row.longitude,
+            'latitude': row.latitude
         })
 
     return result
