@@ -248,3 +248,6 @@ instance/*
 ### BPR ###
 BPR/Data
 BPR/Model
+
+### Secret ###
+secret/
