@@ -38,8 +38,8 @@ def recommend(id):
             'longitude': row.longitude,
             'latitude': row.latitude
         })
-
+    
     return result
 
 
-app.run(debug=True)
+app.run()
