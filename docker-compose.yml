@@ -1,0 +1,30 @@
+version: "1.0"
+
+services:
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      TZ: Asia/Seoul
+    volumes:
+      - ./secret/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./secret/db/Dump/traveler_business.sql:/docker-entrypoint-initdb.d/traveler_business.sql
+      - ./secret/db/Dump/traveler_user.sql:/docker-entrypoint-initdb.d/traveler_user.sql
+    restart: on-failure
+
+  recommender:
+    image: jsbae1023/traveler-recommender:1.0
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    secrets:
+      - source: mysql-connection
+        target: /app/secret/config.py
+    restart: on-failure
+
+secrets:
+  mysql-connection:
+    file: ./secret/config.py
