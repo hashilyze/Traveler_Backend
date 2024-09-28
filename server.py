@@ -11,6 +11,9 @@ app.config.from_object(Config)
 db = SQLAlchemy()
 db.init_app(app)
 
+@app.route('/')
+def index():
+    return "It is recommender API"
 
 @app.get('/recommend/<int:id>')
 def recommend(id):
