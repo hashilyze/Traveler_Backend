@@ -14,32 +14,38 @@ db.init_app(app)
 
 @app.get('/recommend/<int:id>')
 def recommend(id):
-    restaurants = recommend_restaurants(id)
-    result = { }
+    try:
+        restaurants = recommend_restaurants(id)
+        result = {}
 
-    ### User ###
-    result['user'] = {
-        'id': id,
-        'name': db.session.query(User.name).filter(User.user_id == id).scalar()
-    }
+        ### User ###
+        result['user'] = {
+            'id': id,
+            'name': db.session.query(User.name).filter(User.user_id == id).scalar()
+        }
+        ### Resturant ###
+        result['restaurants'] = {
+            'count': restaurants.size,
+            'list': []
+        }
+        for restaurant_id in restaurants.tolist():
+            row = db.session.query(Business) \
+                .filter(Business.business_id == restaurant_id) \
+                .with_entities(Business.name, Business.longitude, Business.latitude) \
+                .first()
+            if row is None:
+                result['restaurants']['list'].append(None)
+            else:
+                result['restaurants']['list'].append({
+                    'id': restaurant_id,
+                    'name': row.name,
+                    'longitude': row.longitude,
+                    'latitude': row.latitude
+                })
 
-    ### Resturant ###
-    result['restaurants'] = {
-        'count': restaurants.size,
-        'list': []
-    }
-    for restaurant_id in restaurants.tolist():
-        row = db.session.query(Business) \
-               .filter(Business.business_id == restaurant_id) \
-               .with_entities(Business.longitude, Business.latitude) \
-               .first()
-        result['restaurants']['list'].append({
-            'id': restaurant_id,
-            'longitude': row.longitude,
-            'latitude': row.latitude
-        })
-    
-    return result
+        return result
+    except IndexError:
+        return {'message': 'Not found user'}
 
 
 app.run()
