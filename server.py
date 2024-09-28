@@ -48,4 +48,4 @@ def recommend(id):
         return {'message': 'Not found user'}
 
 
-app.run()
+app.run(host="0.0.0.0", port=5000)
